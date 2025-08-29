@@ -1,0 +1,284 @@
+"Year","CategoryA","CategoryD","CategoryC","KAcreFt"
+2004,"Agriculture","AG1","Applied Water",33222.3
+2004,"Instream Flow Requirements","IFR1","Applied Water",7005.1
+2004,"Managed Wetlands","MW1","Applied Water",1501.2
+2004,"Required Delta Outflow","RDO1","Applied Water",6532.2
+2004,"Wild and Scenic River","WSR1","Applied Water",23079.1
+2004,"Urban","URB5","Applied Water - Commercial Use",1158.5
+2004,"Urban","URB8","Applied Water - Energy Production",143.3
+2004,"Urban","URB9","Applied Water - Groundwater",254.9
+2004,"Agriculture","AG2","Applied Water - Groundwater Recharge",277.2
+2004,"Urban","URB6","Applied Water - Industrial Use",520.9
+2004,"Urban","URB4","Applied Water - Residential - Multi Family Exterior",611.5
+2004,"Urban","URB3","Applied Water - Residential - Multi Family Interior",960.5
+2004,"Urban","URB2","Applied Water - Residential - Single Family Exterior",2786
+2004,"Urban","URB1","Applied Water - Residential - Single Family Interior",1960.7
+2004,"Urban","URB7","Applied Water - Urban Large Landscape",921.5
+2004,"Agriculture","AWUAG","Applied Water Use",33499.5
+2004,"Instream Flow Requirements","AWUIFR","Applied Water Use",7005.1
+2004,"Managed Wetlands","AWUMW","Applied Water Use",1501.2
+2004,"Required Delta Outflow","AWURDO","Applied Water Use",6532.2
+2004,"Urban","AWUURB","Applied Water Use",9317.8
+2004,"Wild and Scenic River","AWUWSR","Applied Water Use",23079.1
+2004,"Agriculture","AWUAGC","Conveyance Applied Water Use",2571.8
+2004,"Managed Wetlands","AWUMWC","Conveyance Applied Water Use",61.1
+2004,"Urban","AWUURBC","Conveyance Applied Water Use",223.9
+2004,"Agriculture","AG22","Conveyance Deep Percolation",711.8
+2004,"Managed Wetlands","MW20","Conveyance Deep Percolation",17.3
+2004,"Urban","URB30","Conveyance Deep Percolation",13.8
+2004,"Agriculture","AG18F","Conveyance Deep Percolation to Mexico",0
+2004,"Managed Wetlands","MW16F","Conveyance Deep Percolation to Mexico",0
+2004,"Urban","URB26F","Conveyance Deep Percolation to Mexico",0
+2004,"Agriculture","AG18E","Conveyance Deep Percolation to Nevada",0
+2004,"Managed Wetlands","MW16E","Conveyance Deep Percolation to Nevada",0
+2004,"Urban","URB26E","Conveyance Deep Percolation to Nevada",0
+2004,"Agriculture","AG18D","Conveyance Deep Percolation to Oregon",0
+2004,"Managed Wetlands","MW16D","Conveyance Deep Percolation to Oregon",0
+2004,"Urban","URB26D","Conveyance Deep Percolation to Oregon",0
+2004,"Agriculture","AG23","Conveyance Deep Percolation to Salt Sink",6.4
+2004,"Managed Wetlands","MW21","Conveyance Deep Percolation to Salt Sink",0
+2004,"Urban","URB31","Conveyance Deep Percolation to Salt Sink",1
+2004,"Agriculture","DEPAGC","Conveyance Depletion",902.2
+2004,"Managed Wetlands","DEPMWC","Conveyance Depletion",1.1
+2004,"Urban","DEPURBC","Conveyance Depletion",209.5
+2004,"Agriculture","AG17","Conveyance Evaporation and ETAW",892.8
+2004,"Managed Wetlands","MW15","Conveyance Evaporation and ETAW",1.1
+2004,"Urban","URB25","Conveyance Evaporation and ETAW",208.5
+2004,"Agriculture","NW1AGC","Conveyance Net Water Use (Applied Water - Reuse)",1253.8
+2004,"Managed Wetlands","NW1MWC","Conveyance Net Water Use (Applied Water - Reuse)",23.4
+2004,"Urban","NW1URBC","Conveyance Net Water Use (Applied Water - Reuse)",210.1
+2004,"Agriculture","NW2AGC","Conveyance Net Water Use (ETAW + Flow/Salt Sink + Outflow)",1253.8
+2004,"Managed Wetlands","NW2MWC","Conveyance Net Water Use (ETAW + Flow/Salt Sink + Outflow)",23.4
+2004,"Urban","NW2URBC","Conveyance Net Water Use (ETAW + Flow/Salt Sink + Outflow)",210.1
+2004,"Agriculture","AG19B","Conveyance Return Flow for Delta Outflow",0
+2004,"Managed Wetlands","MW17B","Conveyance Return Flow for Delta Outflow",0
+2004,"Urban","URB27B","Conveyance Return Flow for Delta Outflow",0
+2004,"Agriculture","AG20A","Conveyance Return Flow to Developed Supply (Other DAUCO within PA)",199.3
+2004,"Managed Wetlands","MW18A","Conveyance Return Flow to Developed Supply (Other DAUCO within PA)",13.4
+2004,"Urban","URB28A","Conveyance Return Flow to Developed Supply (Other DAUCO within PA)",0.6
+2004,"Agriculture","AG20B","Conveyance Return Flow to Developed Supply (Other PA)",144.1
+2004,"Managed Wetlands","MW18B","Conveyance Return Flow to Developed Supply (Other PA)",8.9
+2004,"Urban","URB28B","Conveyance Return Flow to Developed Supply (Other PA)",0
+2004,"Agriculture","AG20C","Conveyance Return Flow to Developed Supply (Other Region)",8.2
+2004,"Managed Wetlands","MW18C","Conveyance Return Flow to Developed Supply (Other Region)",0
+2004,"Urban","URB28C","Conveyance Return Flow to Developed Supply (Other Region)",0
+2004,"Agriculture","AG18C","Conveyance Return Flow to Mexico",0
+2004,"Managed Wetlands","MW16C","Conveyance Return Flow to Mexico",0
+2004,"Urban","URB26C","Conveyance Return Flow to Mexico",0
+2004,"Agriculture","AG18B","Conveyance Return Flow to Nevada",0
+2004,"Managed Wetlands","MW16B","Conveyance Return Flow to Nevada",0
+2004,"Urban","URB26B","Conveyance Return Flow to Nevada",0
+2004,"Agriculture","AG18A","Conveyance Return Flow to Oregon",0
+2004,"Managed Wetlands","MW16A","Conveyance Return Flow to Oregon",0
+2004,"Urban","URB26A","Conveyance Return Flow to Oregon",0
+2004,"Agriculture","AG19A","Conveyance Return Flows to Salt Sink",3
+2004,"Managed Wetlands","MW17A","Conveyance Return Flows to Salt Sink",0
+2004,"Urban","URB27A","Conveyance Return Flows to Salt Sink",0
+2004,"Agriculture","AG21","Conveyance Seepage",606.2
+2004,"Managed Wetlands","MW19","Conveyance Seepage",20.4
+2004,"Urban","URB29","Conveyance Seepage",0
+2004,"Agriculture","AG5","Deep Percolation of Applied Water",3973.8
+2004,"Managed Wetlands","MW3","Deep Percolation of Applied Water",146
+2004,"Urban","URB12","Deep Percolation of Applied Water",1887.1
+2004,"Agriculture","AG6","Deep Percolation of Applied Water to Salt Sink",719.7
+2004,"Managed Wetlands","MW4","Deep Percolation of Applied Water to Salt Sink",0.2
+2004,"Urban","URB13","Deep Percolation of Applied Water to Salt Sink",33.7
+2004,"Agriculture","AG7","Deep Percolation of Groundwater Recharge",274.2
+2004,"Managed Wetlands","MW5","Deep Percolation of Groundwater Recharge",0
+2004,"Urban","URB14","Deep Percolation of Groundwater Recharge",199
+2004,"Agriculture","AG9F","Deep Percolation to Mexico",0
+2004,"Managed Wetlands","MW7F","Deep Percolation to Mexico",0
+2004,"Urban","URB17F","Deep Percolation to Mexico",0
+2004,"Agriculture","AG9E","Deep Percolation to Nevada",0
+2004,"Managed Wetlands","MW7E","Deep Percolation to Nevada",0
+2004,"Urban","URB17E","Deep Percolation to Nevada",0
+2004,"Agriculture","AG9D","Deep Percolation to Oregon",0
+2004,"Managed Wetlands","MW7D","Deep Percolation to Oregon",0
+2004,"Urban","URB17D","Deep Percolation to Oregon",0
+2004,"Agriculture","DEPAG","Depletion",25896.1
+2004,"Instream Flow Requirements","DEPIFR","Depletion",2705.9
+2004,"Managed Wetlands","DEPMW","Depletion",803
+2004,"Required Delta Outflow","DEPRDO","Depletion",6532.2
+2004,"Urban","DEPURB","Depletion",6219.4
+2004,"Wild and Scenic River","DEPWSR","Depletion",18925.1
+2004,"Agriculture","AG4","Evaporation and Evapotranspiration of Groundwater Recharge",3.1
+2004,"Urban","URB11","Evaporation and Evapotranspiration of Groundwater Recharge",12
+2004,"Urban","URB16","Evaporation and Evapotranspiration of Wastewater",23.3
+2004,"Agriculture","AG3","Evapotranspiration of Applied Water",23058.5
+2004,"Managed Wetlands","MW2","Evapotranspiration of Applied Water",713.6
+2004,"Urban","URB10","Evapotranspiration of Applied Water",2837.8
+2004,"Agriculture","NW1AG","Net Water Use (Applied Water - Reuse)",28111
+2004,"Instream Flow Requirements","NW1IFR","Net Water Use (Applied Water - Reuse)",6496.5
+2004,"Managed Wetlands","NW1MW","Net Water Use (Applied Water - Reuse)",1190
+2004,"Required Delta Outflow","NW1RDO","Net Water Use (Applied Water - Reuse)",6532.2
+2004,"Urban","NW1URB","Net Water Use (Applied Water - Reuse)",6883.6
+2004,"Wild and Scenic River","NW1WSR","Net Water Use (Applied Water - Reuse)",20030
+2004,"Agriculture","NW2AG","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",28108.7
+2004,"Instream Flow Requirements","NW2IFR","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",6496.5
+2004,"Managed Wetlands","NW2MW","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",1190
+2004,"Required Delta Outflow","NW2RDO","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",6532.2
+2004,"Urban","NW2URB","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",6885.9
+2004,"Wild and Scenic River","NW2WSR","Net Water Use (ETAW + Flow/Salt Sink + Outflow)",20030
+2004,"Agriculture","AG10B","Return Flow for Delta Outflow",597.4
+2004,"Instream Flow Requirements","IFR3C","Return Flow for Delta Outflow",936.3
+2004,"Managed Wetlands","MW8B","Return Flow for Delta Outflow",26.9
+2004,"Required Delta Outflow","RDO2","Return Flow for Delta Outflow",6532.2
+2004,"Urban","URB18B","Return Flow for Delta Outflow",202.6
+2004,"Wild and Scenic River","WSR3C","Return Flow for Delta Outflow",1122.9
+2004,"Agriculture","AG11D","Return Flow to Carryover Storage for Next Water Year within DAU",107.4
+2004,"Managed Wetlands","MW9D","Return Flow to Carryover Storage for Next Water Year within DAU",20.5
+2004,"Urban","URB19D","Return Flow to Carryover Storage for Next Water Year within DAU",0
+2004,"Agriculture","AG11A","Return Flow to Developed Supply (Other DAUCO within PA)",353.8
+2004,"Instream Flow Requirements","IFR4A","Return Flow to Developed Supply (Other DAUCO within PA)",0
+2004,"Managed Wetlands","MW9A","Return Flow to Developed Supply (Other DAUCO within PA)",51.6
+2004,"Urban","URB19A","Return Flow to Developed Supply (Other DAUCO within PA)",497.5
+2004,"Wild and Scenic River","WSR4A","Return Flow to Developed Supply (Other DAUCO within PA)",0
+2004,"Agriculture","AG11B","Return Flow to Developed Supply (Other PA)",1689.6
+2004,"Instream Flow Requirements","IFR4B","Return Flow to Developed Supply (Other PA)",3790.6
+2004,"Managed Wetlands","MW9B","Return Flow to Developed Supply (Other PA)",314.5
+2004,"Urban","URB19B","Return Flow to Developed Supply (Other PA)",168.9
+2004,"Wild and Scenic River","WSR4B","Return Flow to Developed Supply (Other PA)",1104.9
+2004,"Agriculture","AG11C","Return Flow to Developed Supply (Other Region)",61.8
+2004,"Instream Flow Requirements","IFR4C","Return Flow to Developed Supply (Other Region)",0
+2004,"Managed Wetlands","MW9C","Return Flow to Developed Supply (Other Region)",0.4
+2004,"Urban","URB19C","Return Flow to Developed Supply (Other Region)",0.1
+2004,"Wild and Scenic River","WSR4C","Return Flow to Developed Supply (Other Region)",0
+2004,"Agriculture","AG9C","Return Flow to Mexico",0
+2004,"Managed Wetlands","MW7C","Return Flow to Mexico",0
+2004,"Urban","URB17C","Return Flow to Mexico",0
+2004,"Agriculture","AG9B","Return Flow to Nevada",20.9
+2004,"Managed Wetlands","MW7B","Return Flow to Nevada",0
+2004,"Urban","URB17B","Return Flow to Nevada",0.1
+2004,"Agriculture","AG9A","Return Flow to Oregon",0
+2004,"Managed Wetlands","MW7A","Return Flow to Oregon",34.2
+2004,"Urban","URB17A","Return Flow to Oregon",0
+2004,"Instream Flow Requirements","IFR3B","Return Flow to Oregon - Mexico - Nevada",71.2
+2004,"Wild and Scenic River","WSR3B","Return Flow to Oregon - Mexico - Nevada",50.3
+2004,"Agriculture","AG10A","Return Flow to Salt Sink",1092.2
+2004,"Instream Flow Requirements","IFR3A","Return Flow to Salt Sink",1698.4
+2004,"Managed Wetlands","MW8A","Return Flow to Salt Sink",9.4
+2004,"Urban","URB18A","Return Flow to Salt Sink",3083.3
+2004,"Wild and Scenic River","WSR3A","Return Flow to Salt Sink",17751.9
+2004,"Agriculture","AG12","Return Flows Evaporation and Evapotranspiration",404.3
+2004,"Managed Wetlands","MW10","Return Flows Evaporation and Evapotranspiration",18.7
+2004,"Urban","URB20","Return Flows Evaporation and Evapotranspiration",26.6
+2004,"Agriculture","AG8","Reuse of Return Flows within DAUCO",1140.5
+2004,"Instream Flow Requirements","IFR2","Reuse of Return Flows within DAUCO",508.6
+2004,"Managed Wetlands","MW6","Reuse of Return Flows within DAUCO",165.2
+2004,"Urban","URB15A","Reuse of Return Flows within DAUCO",179
+2004,"Wild and Scenic River","WSR2","Reuse of Return Flows within DAUCO",3049.1
+2004,"Urban","URB15C","Urban - Desalination",0
+2004,"Urban","URB15B","Urban - Wastewater Recycling",169.1
+2004,"Agriculture","SPL11A","Colorado River Deliveries - Agriculture",3628.4
+2004,"Agriculture","SPL12A","State Water Project Deliveries - Agriculture",1249.4
+2004,"Agriculture","SPL13A","Central Valley Project - Base Deliveries - Agriculture",1793.2
+2004,"Agriculture","SPL14A","Central Valley Project - Project Deliveries - Agriculture",3335.9
+2004,"Agriculture","SPL15A","Other Federal Deliveries - Agriculture",452.2
+2004,"Agriculture","SPL16A","Ocean Desalination - Agriculture",0
+2004,"Agriculture","SPL17A","Water from Refineries - Agriculture",0
+2004,"Agriculture","SPL18A","Water Transfers - Regional - Agriculture",0
+2004,"Agriculture","SPL19A","Inter-basin Water Transfers - Agriculture",0
+2004,"Agriculture","SPL1A","Local Supplies - Agriculture",8190.1
+2004,"Agriculture","SPL2A1","Return Flow from Other DAUCO within PA - Agriculture",444.1
+2004,"Agriculture","SPL2B1","Return Flow from Other PA - Agriculture",1235.4
+2004,"Agriculture","SPL2C1","Return Flow from Other Region - Agriculture",62.5
+2004,"Agriculture","SPL2D1","Return Flow to Carryover Storage within DAU from Previous WY - Agriculture",61.9
+2004,"Agriculture","SPL3A","Local Imports - Agriculture",13.7
+2004,"Agriculture","SPL4A","Groundwater Extraction - Unadjudicated - Agriculture",13575.4
+2004,"Agriculture","SPL5A","Groundwater Extraction - Adjudicated - Agriculture",134.4
+2004,"Agriculture","SPL6A","Groundwater Extraction - Banked - Agriculture",0
+2004,"Instream Flow Requirements","SPL11D","Colorado River Deliveries - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL12D","State Water Project Deliveries - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL13D","Central Valley Project - Base Deliveries - Instream Flow Requirements",2071
+2004,"Instream Flow Requirements","SPL14D","Central Valley Project - Project Deliveries - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL15D","Other Federal Deliveries - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL16D","Ocean Desalination - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL17D","Water from Refineries - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL18D","Water Transfers - Regional - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL19D","Inter-basin Water Transfers - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL1D","Local Supplies - Instream Flow Requirements",4112.2
+2004,"Instream Flow Requirements","SPL2A4","Return Flow from Other DAUCO within PA - Instream Flow Requirements",307.9
+2004,"Instream Flow Requirements","SPL2B4","Return Flow from Other PA - Instream Flow Requirements",4.6
+2004,"Instream Flow Requirements","SPL2C4","Return Flow from Other Region - Instream Flow Requirements",1
+2004,"Instream Flow Requirements","SPL3D","Local Imports - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL4D","Groundwater Extraction - Unadjudicated - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL5D","Groundwater Extraction - Adjudicated - Instream Flow Requirements",0
+2004,"Instream Flow Requirements","SPL6D","Groundwater Extraction - Banked - Instream Flow Requirements",0
+2004,"Managed Wetlands","SPL11B","Colorado River Deliveries - Managed Wetlands",31.6
+2004,"Managed Wetlands","SPL12B","State Water Project Deliveries - Managed Wetlands",3.6
+2004,"Managed Wetlands","SPL13B","Central Valley Project - Base Deliveries - Managed Wetlands",49.4
+2004,"Managed Wetlands","SPL14B","Central Valley Project - Project Deliveries - Managed Wetlands",466.6
+2004,"Managed Wetlands","SPL15B","Other Federal Deliveries - Managed Wetlands",154.2
+2004,"Managed Wetlands","SPL16B","Ocean Desalination - Managed Wetlands",0
+2004,"Managed Wetlands","SPL17B","Water from Refineries - Managed Wetlands",0
+2004,"Managed Wetlands","SPL18B","Water Transfers - Regional - Managed Wetlands",0
+2004,"Managed Wetlands","SPL19B","Inter-basin Water Transfers - Managed Wetlands",0
+2004,"Managed Wetlands","SPL1B","Local Supplies - Managed Wetlands",291.1
+2004,"Managed Wetlands","SPL2A2","Return Flow from Other DAUCO within PA - Managed Wetlands",23.4
+2004,"Managed Wetlands","SPL2B2","Return Flow from Other PA - Managed Wetlands",0
+2004,"Managed Wetlands","SPL2C2","Return Flow from Other Region - Managed Wetlands",3.5
+2004,"Managed Wetlands","SPL2D2","Return Flow to Carryover Storage within DAU from Previous WY - Managed Wetlands",92.7
+2004,"Managed Wetlands","SPL3B","Local Imports - Managed Wetlands",25.3
+2004,"Managed Wetlands","SPL4B","Groundwater Extraction - Unadjudicated - Managed Wetlands",224.2
+2004,"Managed Wetlands","SPL5B","Groundwater Extraction - Adjudicated - Managed Wetlands",0
+2004,"Managed Wetlands","SPL6B","Groundwater Extraction - Banked - Managed Wetlands",0
+2004,"Required Delta Outflow","SPL10D","Desalination - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL11F","Colorado River Deliveries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL12F","State Water Project Deliveries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL13F","Central Valley Project - Base Deliveries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL14F","Central Valley Project - Project Deliveries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL15F","Other Federal Deliveries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL16F","Ocean Desalination - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL17F","Water from Refineries - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL18F","Water Transfers - Regional - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL19F","Inter-basin Water Transfers - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL1F","Local Supplies - Required Delta Outflow",548.3
+2004,"Required Delta Outflow","SPL2A6","Return Flow from Other DAUCO within PA - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL2B6","Return Flow from Other PA - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL2C6","Return Flow from Other Region - Required Delta Outflow",5983.9
+2004,"Required Delta Outflow","SPL3F","Local Imports - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL4F","Groundwater Extraction - Unadjudicated - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL5F","Groundwater Extraction - Adjudicated - Required Delta Outflow",0
+2004,"Required Delta Outflow","SPL6F","Groundwater Extraction - Banked - Required Delta Outflow",0
+2004,"Urban","SPL11C","Colorado River Deliveries - Urban",1128.9
+2004,"Urban","SPL12C","State Water Project Deliveries - Urban",1963.6
+2004,"Urban","SPL13C","Central Valley Project - Base Deliveries - Urban",175.8
+2004,"Urban","SPL14C","Central Valley Project - Project Deliveries - Urban",370.8
+2004,"Urban","SPL15C","Other Federal Deliveries - Urban",58.3
+2004,"Urban","SPL16C","Ocean Desalination - Urban",3.9
+2004,"Urban","SPL17C","Water from Refineries - Urban",0
+2004,"Urban","SPL18C","Water Transfers - Regional - Urban",0
+2004,"Urban","SPL19C","Inter-basin Water Transfers - Urban",0
+2004,"Urban","SPL1C","Local Supplies - Urban",830.3
+2004,"Urban","SPL2A3","Return Flow from Other DAUCO within PA - Urban",354.9
+2004,"Urban","SPL2B3","Return Flow from Other PA - Urban",0
+2004,"Urban","SPL2C3","Return Flow from Other Region - Urban",0
+2004,"Urban","SPL2D3","Return Flow to Carryover Storage within DAU from Previous WY - Urban",0
+2004,"Urban","SPL3C","Local Imports - Urban",715.2
+2004,"Urban","SPL4C","Groundwater Extraction - Unadjudicated - Urban",2622.7
+2004,"Urban","SPL5C","Groundwater Extraction - Adjudicated - Urban",1068.8
+2004,"Urban","SPL6C","Groundwater Extraction - Banked - Urban",59.5
+2004,"Water Supplies","SPL23","Total Developed Supply (TDS)",69508.7
+2004,"Water Supplies","SPL24","Total Return Flow and Reuse (TRFR)",14246.3
+2004,"Water Supplies","SPL25","Total Supply and Retuse (TSR)",83755
+2004,"Water Supplies","SPL26","Total Reuse of Deep Percolation (TRDP)",7223
+2004,"Water Supplies","SPL27","Total Net Supply (TNS)",62285.7
+2004,"Water Supplies","SPL28","Total Reuse (TR)",21469.3
+2004,"Wild and Scenic Rivers","SPL10C","Desalination - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL11E","Colorado River Deliveries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL12E","State Water Project Deliveries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL13E","Central Valley Project - Base Deliveries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL14E","Central Valley Project - Project Deliveries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL15E","Other Federal Deliveries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL16E","Ocean Desalination - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL17E","Water from Refineries - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL18E","Water Transfers - Regional - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL19E","Inter-basin Water Transfers - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL1E","Local Supplies - Wild and Scenic Flows",20006.1
+2004,"Wild and Scenic Rivers","SPL2A5","Return Flow from Other DAUCO within PA - Wild and Scenic Flows",23.7
+2004,"Wild and Scenic Rivers","SPL2B5","Return Flow from Other PA - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL2C5","Return Flow from Other Region - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL3E","Local Imports - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL4E","Groundwater Extraction - Unadjudicated - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL5E","Groundwater Extraction - Adjudicated - Wild and Scenic Flows",0
+2004,"Wild and Scenic Rivers","SPL6E","Groundwater Extraction - Banked - Wild and Scenic Flows",0
