@@ -3,7 +3,7 @@ library(here)
 library(sf)
 
 
-# Clean DAUCO shapefiles
+# Clean DAUCO and User shapefiles
 # CITE: Hagerty (2024)
 
 sf_use_s2(FALSE)
@@ -15,6 +15,11 @@ dauco_shapes %>%
   mutate(dauco_id = str_pad(dauco_id, width = 5, side = "left", pad = "0")) -> dauco_shapes
 
 saveRDS(dauco_shapes, here("data/intermediate/shapefiles/dauco_shapes.rds"))
+
+user_shapes <- st_read(here("raw/hagerty/shapefiles/users_final.shp")) %>%   
+                    mutate(geometry = st_make_valid(geometry)) 
+saveRDS(user_shapes, here("data/intermediate/shapefiles/user_shapes.rds"))
+
 
 # Clean Hyrdologic Region shapefiles and produce indexed xw
 
@@ -32,4 +37,6 @@ hr_shapes %>%
 
 saveRDS(hr_shapes, here("data/intermediate/shapefiles/hr_shapes.rds"))
 write_csv(hr_index_xw, here("data/intermediate/xws/hr_index_xw.csv"))
+
+
 

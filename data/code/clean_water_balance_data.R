@@ -30,6 +30,14 @@ water_balance <- bind_rows(water_balance, wb2018, wb2019, wb2020)
 
 write_csv(water_balance, here("data/intermediate/water_balance.csv"))
 
+water_balance %>% 
+  select(DAU, hr = HR_NAME) %>% unique %>% 
+  mutate(dauco_num = parse_number(DAU)) %>% 
+  mutate(dauco_id = str_pad(dauco_num, 5, "left", "0")) %>% 
+  select(dauco_id, dauco_num, hr) -> dauco_hr_xw
+
+write_csv(dauco_hr_xw, here("data/intermediate/xws/dauco_hr_xw.csv"))
+
 ##### Produce other intermediate tables from water_balance data #######
 
 groundwater_vars <- c("Groundwater Extraction - Unadjudicated - Agriculture", 
