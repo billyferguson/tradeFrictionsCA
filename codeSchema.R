@@ -1,8 +1,5 @@
 
 
-
-
-
 #### Create clean shapefile RDS files in intermediate shapefile data folder ####
 # clean_shapefiles.R 
 
