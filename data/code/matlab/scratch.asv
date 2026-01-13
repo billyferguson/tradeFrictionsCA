@@ -1,0 +1,16 @@
+
+opt_fallow_share = zeros(N, T);
+for t = 1:T
+    opt_fallow_share(:, t) = ones(N, 1)./(1 + sum(exp(d*pi(:, :, t)), 2));
+end
+
+opt_shares = zeros(N, K, T);
+for t = 1:T
+    opt_shares(:, :, t) = opt_fallow_share(:, t).*exp(d*pi(:, :, t)); 
+end
+
+opt_SW = squeeze(sum(L .* opt_shares .* aw, 2));
+
+farmer_a = sw_mvs ./ (2 * (SW - opt_SW));
+farmer_b = -2*farmer_a*opt_SW; 
+

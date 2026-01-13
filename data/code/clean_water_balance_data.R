@@ -190,3 +190,5 @@ dauco_balance_aw %>%
   mutate(dau_share = ifelse(total_dau_aw > 0, balance_aw/total_dau_aw, NA)) %>% 
   select(year, dauco_id, dau_id, balance_aw, dau_share, total_dau_aw) -> dauco_dau_xw
 
+write_csv(dauco_dau_xw, here("data/intermediate/xws/dauco_dau_xw.csv"))
+
