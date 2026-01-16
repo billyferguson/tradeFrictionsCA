@@ -1,0 +1,622 @@
+library(tidyverse)
+library(tigris)
+library(here)
+library(sf)
+library(ggmap)
+library(tigris)
+library(haven)
+library(terra)
+library(readxl)
+library(viridis)
+library(fixest)
+
+dauco_shapes <- readRDS(here("data/intermediate/shapefiles/dauco_shapes.rds"))
+pws_final <- readRDS(here("data/intermediate/shapefiles/pws_final.rds"))
+water_balance <- read_csv(here("data/intermediate/water_balance.csv"))
+dauco_hr_xw <- read_csv(here("data/intermediate/xws/dauco_hr_xw.csv"))
+pws_hr_xw <- read_csv(here("data/intermediate/xws/pws_hr_xw.csv"))
+pws_dauco_xw <- read_csv(here("data/intermediate/xws/pws_dauco_xw.csv"))
+dauco_hr_xw <- read_csv(here("data/intermediate/xws/dauco_hr_xw.csv"))
+
+
+raw_audit <- read_xls(here("raw/urban/water_audit_data_conv_to_af.xls"))
+audit_vars <- colnames(raw_audit)
+
+raw_audit %>% 
+  filter(is.na(SUPPLIER_NAME)) %>% 
+  summarize_all(~sum(is.na(.))) -> na_counts
+
+raw_audit %>% 
+  filter(!is.na(SUPPLIER_NAME)) %>% 
+  select(dwr_id = DWR_ORGANIZATION_ID,
+         supplier_name = WATER_SUPPLIER_NAME,
+         sub_date = SUBMITTED_DATE, 
+         #wue_year = WUEDATA_PLAN_REPORT_YEAR, 
+         year = REPORTING_YEAR, 
+         report_start = REPORTING_START_DATE, 
+         report_end = REPORTING_END_DATE, 
+         pws_id = PWS_ID_OR_OTHER_ID, 
+         vol_own = WS_OWN_SOURCES_VOL_AF, 
+         vol_import = WS_IMPORTED_VOL_AF, 
+         vol_export = WS_EXPORTED_VOL_AF, 
+         vol_supply = WS_WATER_SUPPLIED_VOL_AF, 
+         losses = WL_WATER_LOSSES_VOL_AF,
+         pipe_length = SD_LENGTH_MAINS_MILES, 
+         service_connections = SD_NUM_SERVICE_CONN, 
+         total_annual_cost = CD_TOTAL_ANNUAL_COST, 
+         unit_cost = CD_CUST_RET_UNIT_COST, 
+         unit = CD_CUST_RET_UNIT_COST_UNITS, 
+         variable_unit = VOLUME_REPORTING_UNITS, 
+         variable_cost = CD_VARIABLE_PROD_COST) %>% 
+  filter(!is.na(year)) %>% 
+  mutate(year = ifelse(year == 1516, 2016, year)) %>% 
+  mutate(year = ifelse(year == 16, 2016, year)) %>% 
+  mutate(year = ifelse(year == 18, 2018, year)) %>% 
+  mutate(vol_own = ifelse(is.na(vol_own), 0, vol_own)) %>% 
+  mutate(log_vol_own = log(vol_own + 1)) %>% 
+  mutate(vol_import = ifelse(is.na(vol_import), 0, vol_import)) %>% 
+  mutate(vol_export = ifelse(is.na(vol_export), 0, vol_export)) %>% 
+  filter(!is.na(pws_id)) %>% 
+  mutate(pws_id = parse_number(pws_id)) %>% 
+  filter(!is.na(pws_id)) %>% 
+  filter(!is.na(unit_cost)) %>% 
+  unique %>% 
+  group_by(year, pws_id) %>% 
+  filter(sub_date == max(sub_date)) %>% 
+  group_by(pws_id) %>% 
+  mutate(avg_unit_cost = mean(unit_cost)) %>% 
+  mutate(count = n()) %>% 
+  filter(count > 1) %>% 
+  ungroup %>% 
+  mutate(avg_cost_loo = ifelse(count > 1, (avg_unit_cost * count - unit_cost) / (count - 1), NA)) %>% 
+  filter(unit_cost < 10*avg_cost_loo) %>% 
+  mutate(price = ifelse(str_detect(unit, "cubic"), unit_cost * 435.599, 
+                        ifelse(str_detect(unit, "gallons"), unit_cost * 325.851, unit_cost * 1233.4818375))) %>% 
+  mutate(log_supply = log(vol_supply)) %>% 
+  mutate(pws_id = as.character(pws_id)) %>% 
+  mutate(year = as.character(year)) %>% 
+  #filter(str_detect(supplier_name, "San Francisco")) %>% 
+  mutate(log_price = log(price)) %>% 
+  mutate(average_cost = total_annual_cost/vol_supply) %>% 
+  mutate(log_average_cost = log(average_cost)) %>% 
+  mutate(log_annual_cost = log(total_annual_cost)) %>% 
+  group_by(pws_id) %>% 
+  mutate(pws_mean_price = (price - mean(price))/sqrt(var(price)), 
+         pws_mean_ac = (average_cost - mean(average_cost))/sqrt(var(average_cost))) %>% 
+  mutate(share_own = (vol_own - vol_export) / vol_supply) %>% 
+  mutate(share_import = (vol_import) / vol_supply) %>% 
+  #mutate(log_share_own = log(share_own )) %>% 
+  #mutate(log_vol_own = log(1+vol_own)) %>% 
+  mutate(avg_variable_cost = ifelse(str_detect(variable_unit, "feet"), variable_cost, 
+                                    variable_cost * .325851)) %>% 
+  mutate(total_variable_cost = vol_supply * avg_variable_cost) %>% 
+  mutate(fixed_cost = total_annual_cost - total_variable_cost) %>% 
+  mutate(avg_variable_cost = ifelse(fixed_cost > 0, avg_variable_cost, 
+                                    avg_variable_cost * .325851)) %>% 
+  mutate(total_variable_cost = vol_supply * avg_variable_cost) %>% 
+  mutate(fixed_cost = total_annual_cost - total_variable_cost) %>% 
+  mutate(fixed_cost = ifelse(fixed_cost < 0, 1, fixed_cost)) %>% 
+  mutate(log_fixed_cost = log(fixed_cost)) %>% 
+  mutate(log_var_cost = log(avg_variable_cost)) %>% 
+  mutate(avg_fixed_cost = fixed_cost / service_connections) %>% 
+  mutate(avg_service_vol = vol_supply/service_connections) %>% 
+  mutate(fixed_per_supply = avg_fixed_cost/avg_service_vol) %>% 
+  mutate(construct_price = avg_variable_cost + fixed_per_supply) %>% 
+  mutate(avg_yearly_bill = avg_service_vol*price) %>% 
+  mutate(avg_monthly_bill = avg_yearly_bill/12) %>% 
+  mutate(log_q = log(vol_supply/service_connections)) %>% 
+  mutate(log_pipe_length = log(pipe_length)) -> inter_audit
+
+unique_pws <- inter_audit %>% select(pws_id) %>% unique %>% mutate(match = 1)
+
+
+############### rain data 
+
+rain_data <- read_csv("data/intermediate/clean_rain_data.csv")
+
+rain_data %>% 
+  select(lon, lat) %>% 
+  unique %>% 
+  mutate(rain_id = seq(1, nrow(.), by = 1)) %>% 
+  st_as_sf(coords = c("lon", "lat")) %>% 
+  mutate(geometry = st_set_crs(geometry, st_crs(pws_final$geometry))) -> rain_shapes
+
+pws_rain_xw <- st_intersection(pws_final, rain_shapes)
+
+pws_final %>% 
+  mutate(raw_area = as.numeric(st_area(geometry))) %>% 
+  mutate(acres = 0.000247105*raw_area) %>% 
+  st_drop_geometry %>% 
+  select(pws_id, acres) -> pws_acres
+
+rain_data %>% 
+  st_as_sf(coords = c("lon", "lat")) %>% 
+  mutate(geometry = st_set_crs(geometry, st_crs(pws_final$geometry))) %>% 
+  st_intersection(pws_final) %>% 
+  st_drop_geometry %>% 
+  group_by(year, pws_id) %>% 
+  summarize(rain = mean(rain, na.rm = TRUE)) -> pws_rain
+
+pws_rain %>% 
+  mutate(rain = (0.0393701*rain)/12) %>% 
+  left_join(pws_acres) %>% 
+  mutate(rain = rain*acres) -> pws_rain
+
+############### Incomes and House Vars
+
+pws_house_vars <- read_csv("data/intermediate/pws_house_vars.csv") %>% mutate(pws_id = as.character(pws_id))
+pws_incomes <- read_csv("data/intermediate/pws_incomes.csv") %>% mutate(pws_id = as.character(pws_id))
+
+################ 
+
+
+pws_final %>% 
+  st_intersection(dauco_shapes) %>% 
+  mutate(overlap = as.numeric(st_area(geometry))) %>% 
+  group_by(pws_id) %>%
+  mutate(dauco_share = overlap/sum(overlap)) -> pws_dauco_xw
+
+
+pws_dauco_xw %>% 
+  group_by(pws_id) %>% 
+  filter(overlap == max(overlap)) %>% 
+  st_drop_geometry %>% 
+  select(pws_id, dauco_id) -> pws_to_dauco
+
+write_csv(pws_to_dauco, here("data/intermediate/xws/pws_to_dauco.csv"))
+
+pws_dauco_xw %>% 
+  group_by(pws_id) %>% 
+  filter(overlap == max(overlap)) -> pws_max_dauco_xw
+
+water_balance %>% 
+  filter(CategoryA == "Water Supplies") %>% 
+  filter(str_detect(CategoryC, "Urban")) %>% 
+  filter(!str_detect(CategoryC, "Desal")) %>% 
+  filter(!str_detect(CategoryC, "Transfers")) %>% 
+  filter(!str_detect(CategoryC, "Refineries")) %>% 
+  filter(!str_detect(CategoryC, "Storage")) %>% 
+  filter(!str_detect(CategoryC, "Federal")) %>% 
+  mutate(source = case_when(str_detect(CategoryC, "Central")  ~ "cvp",
+                            str_detect(CategoryC, "State") ~ "swp", 
+                            str_detect(CategoryC, "Groundwater") ~ "gw", 
+                            1 == 1 ~ "other")) %>% 
+  mutate(dauco_id = parse_number(DAU)) %>% 
+  group_by(year = Year, dauco_id, hr = HR_NAME, source) %>% 
+  summarize(af = 1000*(sum(KAcreFt))) %>% 
+  arrange(dauco_id, source, year) %>% 
+  group_by(dauco_id, source) %>% 
+  ungroup %>% 
+  pivot_wider(id_cols = c("year", "dauco_id", "hr"),
+              names_from = "source", 
+              values_from = "af") %>% 
+  mutate(sw = cvp + other + swp) -> wb_urban_supply_info
+
+############# 
+
+inter_audit %>% 
+  left_join(pws_house_vars, by = "pws_id") %>% 
+  left_join(pws_incomes, by = "pws_id")  %>% 
+  mutate(pws_id = as.numeric(pws_id)) %>% 
+  left_join(pws_rain %>% mutate(year = as.character(year)), by = c("pws_id", "year")) %>% 
+  left_join(pws_max_dauco_xw, by = "pws_id") %>% 
+  mutate(log_rain = log(rain)) -> inter_audit
+
+# balance the data
+
+inter_audit %>% 
+  filter(year != 2015) %>% 
+  filter(!is.na(median_lot_size), 
+         !is.na(median_income), 
+         !is.na(rain)) %>% 
+  filter(!is.na(log_q)) %>% 
+  group_by(pws_id) %>% 
+  mutate(year_count = n()) %>% 
+  mutate(max_q = max(vol_supply/service_connections)) %>% 
+  filter(max_q < 5)-> audit
+
+########################### Reported results 
+
+
+audit %>% 
+  #filter(year != 2022) %>% 
+  group_by(pws_id) %>% 
+  #filter(min(service_connections) > 5000) %>% 
+  #filter(min(vol_supply) > 1000) %>% 
+  mutate(perHouse = vol_supply/service_connections) %>% 
+  #filter(max(perHouse) < 2) %>% 
+  #filter(year_count > 4) %>% 
+  #filter(median_lot_size < 15) %>% 
+  left_join(pws_hr_xw) %>% 
+  filter(hr != "North Coast") %>% 
+  filter(hr != "North Lahontan") %>% 
+  ungroup %>% 
+  rename(County = county) %>% 
+  rename(LogSupply = log_supply) %>% 
+  mutate(Price = price) %>% 
+  rename(LogPrice = log_price) %>% 
+  mutate(LogImport = log(vol_import + 1)) %>% 
+  mutate(LogRain = log(rain)) %>%  
+  mutate(LogIncome = log(median_income)) %>% 
+  mutate(LogLotSize = log(median_lot_size)) %>% 
+  mutate(LogHouseholds = log(service_connections)) %>% 
+  mutate(LogVolOwn = log_vol_own) %>% 
+  mutate(LogPerHouseSupply = LogSupply - LogHouseholds) %>% 
+  #filter(!(pws_id == 3310001 & year == 2019)) %>% 
+  group_by(pws_id) %>% 
+  #filter(min(log_vol_own) + max(log_vol_own) != 0) %>% 
+  ungroup %>% 
+  mutate(Year = year, HydroRegion = hr, UtilityID = pws_id) %>% 
+  mutate(CoastalRegion = (HydroRegion %in% c("San Francisco Bay", "Central Coast", "South Coast"))) -> pws_reg_data 
+
+write_csv(pws_reg_data, here("data/intermediate/pws_reg_data_log_lin.csv"))
+
+pws_reg_data <- read_csv(("data/intermediate/pws_reg_data_log_lin.csv"))
+
+(-0.00094)/(mean(pws_reg_data$price))/mean(pws_reg_data$LogSupply)
+
+(-0.000094)*mean(pws_reg_data$price)
+(-0.000094)*(sum(pws_reg_data$price * pws_reg_data$service_connections))/sum(pws_reg_data$service_connections)
+
+
+sum((-0.000094/pws_reg_data$price)*pws_reg_data$service_connections)/sum(pws_reg_data$service_connections)
+
+quantile(pws_reg_data$service_connections, c(0, 0.05, 0.1, 0.15, 0.2))
+
+pws_reg_data %>% 
+  select(year, supplier_name, pws_id, perHouse) -> eek
+
+# pws_reg_data  %>% feols(LogSupply ~  LogRain + LogIncome + LogLotSize + LogHouseholds | Year^county | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+pws_reg_data  %>% feols(LogSupply ~  LogRain + LogIncome + LogLotSize + LogHouseholds | Year^HydroRegion | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+pws_reg_data  %>% feols(LogSupply ~  LogRain + LogIncome + LogLotSize + LogHouseholds | Year^County | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+pws_reg_data  %>% feols(LogSupply  ~  LogRain + LogHouseholds| Year + UtilityID | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+pws_reg_data  %>% feols(LogSupply  ~  LogRain + LogHouseholds| Year^HydroRegion + UtilityID | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+pws_reg_data  %>% feols(LogSupply  ~  LogRain + LogHouseholds| Year^HydroRegion + UtilityID | Price ~ LogVolOwn, weight = pws_reg_data$service_connections) 
+
+
+pws_reg_data  %>% 
+  feols(LogSupply  ~  LogRain + LogHouseholds| Year^HydroRegion + UtilityID | Price ~ LogVolOwn, weight = pws_reg_data$service_connections, cluster = c("UtilityID", "HydroRegion")) 
+
+
+pws_reg_data %>% 
+  feols(LogPrice ~ CoastalRegion:LogVolOwn + LogRain + LogHouseholds | Year^HydroRegion + UtilityID, weight = pws_reg_data$service_connections) -> fs_log
+
+pws_reg_data %>% 
+  feols(Price ~ CoastalRegion:LogVolOwn + LogRain + LogHouseholds | Year^HydroRegion + UtilityID, weight = pws_reg_data$service_connections) -> fs_lin
+
+pws_reg_data %>% 
+  mutate(predLogPrice = fs_log$fitted.values) %>% 
+  mutate(predPrice = fs_lin$fitted.values) %>% 
+  feols(LogSupply ~  CoastalRegion:predPrice + LogRain + LogHouseholds | Year^HydroRegion + UtilityID, weight = pws_reg_data$service_connections) 
+
+
+pws_reg_data %>% 
+  feols(LogSupply ~  LogRain + LogHouseholds | Year^HydroRegion + UtilityID | CoastalRegion:Price ~ CoastalRegion:LogVolOwn, weight = pws_reg_data$service_connections) %>% etable
+
+
+pws_reg_data %>% 
+  feols(LogSupply ~  LogRain + LogHouseholds | Year^HydroRegion + UtilityID | Price ~ LogVolOwn, weight = pws_reg_data$service_connections, split = ~CoastalRegion) %>% etable
+
+
+pws_reg_data  %>% feols(LogSupply  ~  LogRain + LogHouseholds| Year^HydroRegion + UtilityID | Price ~ LogVolOwn, weight = pws_reg_data$service_connections) -> pref_log_lin_spec
+
+summary(pref_log_lin_spec)
+demand_coefs <- pref_log_lin_spec$coefficients
+price_coef <- demand_coefs['fit_Price']
+#price_coef <- demand_coefs['fit_LogPrice']
+rain_coef <- demand_coefs['LogRain']
+pop_coef <- demand_coefs['LogHouseholds']
+fe_ests <- pref_log_lin_spec$sumFE
+
+pws_reg_data  %>% feols(LogSupply  ~  LogRain + LogHouseholds| Year^HydroRegion + UtilityID | LogPrice ~ LogVolOwn, weight = pws_reg_data$service_connections) -> pref_log_log_spec
+
+summary(pref_log_log_spec)
+log_demand_coefs <- pref_log_log_spec$coefficients
+log_price_coef <- log_demand_coefs['fit_LogPrice']
+#price_coef <- demand_coefs['fit_LogPrice']
+log_rain_coef <- log_demand_coefs['LogRain']
+log_pop_coef <- log_demand_coefs['LogHouseholds']
+log_fe_ests <- pref_log_log_spec$sumFE
+
+pref_log_lin_spec$residuals
+
+
+data.frame(predicted = pref_log_lin_spec$fitted.values) %>% 
+  mutate(residuals = pref_log_lin_spec$residuals) %>% 
+  ggplot(aes(x = pws_reg_data$Price, y = residuals)) + 
+  geom_point()
+
+data.frame(predicted = pref_log_log_spec$fitted.values) %>% 
+  mutate(residuals = pref_log_log_spec$residuals) %>% 
+  ggplot(aes(x = pws_reg_data$Price, y = residuals)) + 
+  geom_point()
+
+
+pws_reg_data %>% 
+  mutate(year = as.numeric(year)) %>% 
+  mutate(pws_id = as.character(pws_id)) %>% 
+  feols(service_connections ~ pws_id:year|pws_id) -> service_reg
+
+as.data.frame(service_reg$coeftable) %>% 
+  mutate(pws_id = rownames(.)) %>% 
+  mutate(pws_id = str_replace(pws_id, "pws_id", "")) %>% 
+  mutate(pws_id = str_replace(pws_id, ":year", "")) %>% 
+  select(pws_id, service_change = Estimate) %>% 
+  mutate(pws_id = as.numeric(pws_id)) -> service_reg_data
+
+rownames(service_reg_data) <- NULL
+
+pws_reg_data %>% 
+  mutate(pred_service_connections = service_reg$fitted.values) %>% 
+  group_by(pws_id) %>% 
+  mutate(service_connection_diff = sum((year == max(year))*service_connections - (year == min(year))*service_connections)) %>% 
+  mutate(manual_change = service_connection_diff / n()) %>% 
+  filter(year == min(year)) %>% 
+  ungroup %>% 
+  select(supplier_name, pws_id, year, service_connections, pred_service_connections, manual_change) %>% 
+  left_join(service_reg_data) %>% 
+  rowwise %>% 
+  mutate(min_abs_delta = min(abs(manual_change), abs(service_change))) %>% 
+  mutate(service_delta = ifelse(abs(manual_change) == min_abs_delta,
+                                manual_change, service_change)) %>% 
+  mutate(service_delta = min(service_connections/20, service_delta)) %>% 
+  mutate(service_delta = max(0, service_delta)) %>% 
+  mutate(ref_year = as.numeric(year)) %>% 
+  select(-year) %>% 
+  cross_join(data.frame(year = seq(2005, 2019, by = 1))) %>% 
+  ungroup %>% 
+  mutate(year_diff = year - ref_year) %>% 
+  mutate(impute_connections = service_connections + year_diff*service_delta) %>% 
+  select(supplier_name, pws_id, year, impute_connections) -> impute_pws_connections
+
+
+manual_agency_xw <- read_csv(here("raw/xws/manually_identify_all_agencies.csv")) %>% select(raw_agency, agency) %>% unique
+manual_pwsid <- read_csv(here("raw/xws/manual_pwsid.csv"))
+#user_shapes <- st_read(here("data/hagerty/data-surface-water-master/gis/shapefile_output/users_final.shp")) %>%   mutate(geometry = st_make_valid(geometry)) 
+
+pws_shapes <- st_read(here("raw/shapefiles/California_Drinking_Water_System_Area_Boundaries")) %>% 
+  mutate(pws_id = as.character(parse_number(SABL_PWSID))) %>% mutate(geometry = st_transform(geometry, st_crs(dauco_shapes$geometry)))
+
+pws_to_dauco <- read_csv(here("data/intermediate/xws/pws_to_dauco.csv"))
+
+
+pws_shapes %>% 
+  filter(pws_id %in% pws_reg_data$pws_id) %>% 
+  select(pws_id, pws_name = WATER_SY_1) %>% 
+  mutate(pws_area = as.numeric(st_area(geometry))) %>% 
+  group_by(pws_id, pws_name) %>% 
+  filter(pws_area == max(pws_area)) %>%
+  slice_sample(n = 1) %>% 
+  ungroup -> urban_shapes
+
+urban_shapes %>% 
+  mutate(pws_area = as.numeric(st_area(geometry))) %>% 
+  st_intersection(dauco_shapes %>% mutate(dauco_area = as.numeric(st_area(geometry)))) %>% 
+  mutate(overlap = as.numeric(st_area(geometry))) %>% 
+  mutate(dauco_share = overlap/pws_area) %>% 
+  mutate(share_of_dauco = overlap/dauco_area) %>% 
+  filter(dauco_share > 0.05) %>% 
+  st_drop_geometry %>% 
+  mutate(pws_id = as.numeric(pws_id)) %>% 
+  select(pws_id, dauco_id, dauco_share, share_of_dauco) -> pws_dauco_xw
+
+pws_dauco_xw %>% 
+  group_by(pws_id) %>% 
+  filter(dauco_share == max(dauco_share)) %>% 
+  #mutate(index = seq(1, n(), by = 1)) %>% 
+  #filter(index == 1) %>% 
+  select(pws_id, dauco_id) -> pws_to_one_dauco
+
+#manual_pwsid %>% 
+#  #filter((raw_agency %in% directly_identified_city_traders$agency)) %>% 
+#  select(raw_agency) %>% 
+#  left_join(manual_agency_xw) %>% 
+#  filter(!is.na(agency)) %>% 
+#  rename(username = agency) %>% 
+#  left_join(user_shapes %>% select(-pwsid)) %>% 
+#  st_as_sf() %>% 
+#  st_intersection(urban_shapes) %>% 
+#  select(raw_agency, username, pws_id, pws_name) %>% 
+#  mutate(pws_id = as.numeric(pws_id)) %>% 
+#  left_join(urban_wtp_data %>% mutate(pws_id = as.numeric(pws_id))) -> indirect_city_id
+#
+#indirect_city_id %>% 
+#  group_by(username) %>% 
+#  mutate(avg_mwtp = mean(mwtp)) %>% 
+#  ungroup %>% 
+#  mutate(wholesaler_mwtp_dist = abs(mwtp - avg_mwtp)) %>% 
+#  group_by(pws_id) %>% 
+#  filter(wholesaler_mwtp_dist == min(wholesaler_mwtp_dist)) %>% 
+#  st_drop_geometry %>% 
+#  select(agency = raw_agency, pws_id) -> agency_city_xw
+
+pws_reg_data %>% 
+  filter(year != 2017) %>% 
+  filter(year != 2021) %>% 
+  mutate(year = as.numeric(year)) %>% 
+  select(supplier_name, pws_id, year, Q_bar = vol_supply) %>% 
+  mutate(pws_id = as.numeric(pws_id)) %>%
+  left_join(pws_dauco_xw) %>% 
+  mutate(dauco_id = as.numeric(dauco_id)) %>% 
+  left_join(wb_urban_supply_info) %>% 
+  mutate_at(c("cvp", "gw", "other", "swp", "sw"), 
+            ~.*share_of_dauco) %>% 
+  group_by(year, supplier_name, pws_id, Q_bar) %>% 
+  summarize_at(c("cvp", "gw", "other", "swp", "sw"), ~ sum(., na.rm = TRUE)) %>% 
+  #rename(CVP = cvp, GW = gw, Other = other, SWP = swp, SW = sw) %>% 
+  mutate(gw = ifelse((gw+sw) == 0, Q_bar, gw)) %>% 
+  mutate(share_gw = gw/(gw + sw)) %>% 
+  mutate(share_sw = sw/(gw + sw)) %>% 
+  mutate(share_cvp = ifelse(sw > 0, cvp/sw, 0)) %>% 
+  mutate(share_swp = ifelse(sw > 0, swp/sw, 0)) %>% 
+  mutate(share_other = ifelse(sw > 0, other/sw, 0)) %>% 
+  group_by(pws_id) %>% 
+  mutate(in_swp = as.numeric(max(share_swp) > 0)) %>% 
+  mutate(in_cvp = as.numeric(max(share_cvp) > 0)) %>% 
+  mutate(in_project = as.numeric(max(share_swp + share_cvp) > 0)) %>% 
+  #mutate(ref_Q_bar = sum(as.numeric(year == 2018)*(Q_bar))) %>% 
+  #mutate(ref_total = sum(as.numeric(year == 2018)*(sw + gw))) %>% 
+  #mutate(sw_ref_total = sum(as.numeric(year == 2018)*(sw))) %>% 
+  mutate(ref_Q_bar = mean(Q_bar)) %>% 
+  mutate(ref_total = mean(sw + gw)) %>% 
+  mutate(sw_ref_total = mean(sw)) %>% 
+  mutate(ref_adj = (sw + gw)/ref_total) %>% 
+  mutate(sw_ref_adj = (sw)/ref_total) %>% 
+  arrange(pws_id) %>% 
+  select(-one_of(c("cvp", "gw", "other", "swp", "sw"))) %>% 
+  #filter(pws_id == 3910011) %>% 
+  #mutate(phi = ifelse(pws_id == 3910011, phi + 300, phi)) %>% 
+  #mutate(maxSW = exp(price_coef*phi + dem_intercept)) %>% 
+  mutate(newQ = Q_bar*ref_adj) %>% 
+  mutate(real_change = Q_bar - ref_Q_bar) %>% 
+  mutate(impute_change = newQ - ref_Q_bar) %>% 
+  #filter(year != 2018) %>% 
+  mutate(share_real_change = real_change/impute_change) %>% 
+  group_by(pws_id) %>% 
+  mutate(avg_share_change = mean(share_real_change)) %>% 
+  mutate(avg_share_change = min(abs(avg_share_change), 1)) %>% 
+  #mutate(avg_share_change = 1) %>% 
+  select(pws_id, avg_share_change) %>% unique -> pws_share_change
+
+pws_reg_data %>% 
+  ungroup %>% 
+  mutate(year = as.numeric(year)) %>% 
+  select(supplier_name, pws_id, year, vol_supply, variable_cost, avg_variable_cost) %>% 
+  mutate(price_coef = price_coef) %>% 
+  mutate(log_price_coef = log_price_coef) %>% 
+  mutate(fe = fe_ests) %>% 
+  mutate(log_fe = log_fe_ests) %>% 
+  arrange(pws_id) %>% 
+  group_by(pws_id) %>% 
+  mutate(ref_year = sum((year == min(year))*year)) %>% 
+  mutate(ref_year = ifelse(ref_year == 2017, 2018, ref_year)) %>% 
+  mutate(ref_year = ifelse(sum(ref_year == year) == 0, 2019, ref_year)) %>% 
+  filter(ref_year < 2020) %>% 
+  mutate(pws_ref_Q = sum((year == ref_year)*vol_supply)) %>% 
+  mutate(pws_Q_adj = vol_supply/pws_ref_Q) %>% 
+  rename(pws_year = year, pws_ref_year = ref_year) %>% 
+  cross_join(data.frame(year = seq(2005, 2019, by = 1)))  %>% 
+  filter(year != 2017) %>% filter(year != 2009) %>% 
+  mutate(pws_id = as.numeric(pws_id)) %>% 
+  # some kind of duplication is happening here 
+  left_join(pws_dauco_xw) %>% 
+  mutate(dauco_id = as.numeric(dauco_id)) %>% 
+  left_join(wb_urban_supply_info) %>% 
+  mutate_at(c("cvp", "gw", "other", "swp", "sw"), 
+            ~.*share_of_dauco) %>% 
+  group_by(supplier_name, pws_id, pws_year, vol_supply, price_coef, 
+           log_price_coef, fe, log_fe, pws_ref_year, pws_ref_Q, pws_Q_adj, year, 
+           variable_cost, avg_variable_cost) %>% 
+  summarize_at(c("cvp", "gw", "other", "swp", "sw"), ~ sum(., na.rm = TRUE)) %>% 
+  #rename(CVP = cvp, GW = gw, Other = other, SWP = swp, SW = sw) %>% 
+  mutate(share_gw = gw/(gw + sw)) %>% 
+  mutate(share_sw = sw/(gw + sw)) %>% 
+  mutate(share_cvp = ifelse(sw > 0, cvp/sw, 0)) %>% 
+  mutate(share_swp = ifelse(sw > 0, swp/sw, 0)) %>% 
+  mutate(share_other = ifelse(sw > 0, other/sw, 0)) %>% 
+  group_by(pws_id, pws_year) %>% 
+  mutate(in_swp = as.numeric(max(share_swp) > 0)) %>% 
+  mutate(in_cvp = as.numeric(max(share_cvp) > 0)) %>% 
+  mutate(in_project = as.numeric(max(share_swp + share_cvp) > 0)) %>% 
+  mutate(ref_total = sum(as.numeric(year == pws_ref_year)*(sw + gw))) %>% 
+  mutate(sw_ref_total = sum(as.numeric(year == pws_ref_year)*(sw))) -> on_the_way
+
+on_the_way %>% 
+  left_join(pws_share_change) %>% 
+  mutate(add_adj = avg_share_change*((sw + gw) - ref_total)) %>% 
+  mutate(ref_adj = 1 + add_adj/ref_total) %>% 
+  rowwise %>% 
+  mutate(ref_adj = max(ref_adj, 0.6)) %>% 
+  ungroup %>% 
+  arrange(pws_id) %>% 
+  select(-one_of(c("cvp", "gw", "other", "swp", "sw"))) %>% 
+  #filter(pws_id == 3910011) %>% 
+  #mutate(phi = ifelse(pws_id == 3910011, phi + 300, phi)) %>% 
+  #mutate(maxSW = exp(price_coef*phi + dem_intercept)) %>% 
+  mutate(newQ = pws_ref_Q*ref_adj) %>% 
+  mutate(diff = abs(newQ - vol_supply) + pws_year/2000000) %>% 
+  group_by(pws_id, year) %>% 
+  filter(diff == min(diff)) %>%
+  select(supplier_name, pws_id, year, ref_vol_supply = vol_supply, vol_supply = newQ, price_coef, log_price_coef, fe, log_fe, variable_cost, avg_variable_cost) %>% 
+  arrange(pws_id, year) %>% 
+  left_join(pws_rain %>% mutate(pws_id = as.numeric(pws_id))) %>% 
+  left_join(impute_pws_connections %>% mutate(pws_id = as.numeric(pws_id))) %>% 
+  mutate(dem_intercept = rain_coef*log(rain) + pop_coef*log(impute_connections) + fe) %>% 
+  mutate(mwtp = (log(vol_supply) - dem_intercept)/price_coef) %>% 
+  #mutate(mwtp = (vol_supply/exp(dem_intercept))^(1/price_coef)) %>% 
+  mutate(new_gain = mwtp - variable_cost) %>% 
+  mutate(new_gain = ifelse(new_gain < 0, mwtp - avg_variable_cost, new_gain)) %>% 
+  # 50% of SFPUC cost is debt service, put this into phi 
+  mutate(new_gain = ifelse(pws_id == 3810011, 0.5*new_gain, new_gain)) %>% 
+  #mutate(new_gain = ifelse(new_gain < 0, 0.67*mwtp, new_gain)) %>% 
+  # mutate(new_gain = ifelse(is.na(new_gain), 0.67*mwtp, new_gain)) %>% 
+  mutate(phi = mwtp - new_gain) %>% 
+  mutate(dem_intercept = ifelse(new_gain < 0, log(vol_supply) - price_coef*phi, dem_intercept)) %>% 
+  mutate(mwtp = (log(vol_supply) - dem_intercept)/price_coef) %>% 
+  mutate(new_gain = mwtp - phi) %>% 
+  mutate(maxSW = exp(price_coef*phi + dem_intercept)) %>% 
+  mutate(log_dem_intercept = log_rain_coef*log(rain) + log_pop_coef*log(impute_connections) + log_fe) %>% 
+  mutate(log_mwtp = (vol_supply/exp(log_dem_intercept))^(1/log_price_coef)) %>% 
+  mutate(log_new_gain = log_mwtp - variable_cost) %>% 
+  mutate(log_new_gain = ifelse(log_new_gain < 0, log_mwtp - avg_variable_cost, log_new_gain)) %>% 
+  #mutate(new_gain = ifelse(new_gain < 0, 0.67*mwtp, new_gain)) %>% 
+  mutate(log_new_gain = ifelse(is.na(log_new_gain), 0.67*log_mwtp, log_new_gain)) %>% 
+  mutate(log_phi = log_mwtp - log_new_gain) %>% 
+  mutate(log_maxSW = exp(log_dem_intercept)*(log_phi^log_price_coef)) %>% 
+  mutate(max_demand = maxSW - vol_supply) %>% 
+  mutate(price = 2500) %>% 
+  mutate(total_demand = exp(price_coef*(price + phi) + dem_intercept)) %>% 
+  mutate(residual_demand = total_demand - vol_supply) %>% 
+  filter(!(pws_id %in% c(1910203, 5610019))) -> urban_wtp
+
+write_csv(urban_wtp, "data/test_clean_data/urban_wtp.csv")
+
+urban_wtp %>% 
+  #filter(year %in% c(2012, 2013, 2014, 2015)) %>% 
+  cross_join(data.frame(quantity_share = seq(0, 5, by = 0.05))) %>% 
+  mutate(quantity = vol_supply*quantity_share) %>% 
+  rowwise %>% 
+  filter(quantity <= max(maxSW, log_maxSW)) %>% 
+  select(supplier_name, pws_id, year, vol_supply, quantity, quantity_share, 
+         price_coef, log_price_coef, dem_intercept, log_dem_intercept, 
+         fe, log_fe, phi, log_phi, maxSW, log_maxSW) %>% 
+  mutate(quantity = max(quantity , 1)) %>% 
+  mutate(mwtp = (log(quantity) - dem_intercept)/price_coef - phi) %>% 
+  mutate(log_mwtp = (quantity/exp(log_dem_intercept))^(1/log_price_coef) - log_phi) %>% 
+  group_by(pws_id, year) %>% 
+  mutate(base_mwtp = sum((quantity_share == 1)*mwtp)) %>% 
+  mutate(base_log_mwtp = sum((quantity_share == 1)*log_mwtp)) %>% 
+  mutate(lb_mwtp = sum((quantity_share == 0.1)*mwtp)) %>% 
+  mutate(lb_log_mwtp = sum((quantity_share == 0.1)*log_mwtp)) %>%
+  mutate(lb_supply = sum((quantity_share == 0.1)*quantity)) %>% ungroup %>% 
+  mutate(buy_a = ifelse(abs(maxSW - vol_supply) < 1, 0, -base_mwtp/(2*(maxSW - vol_supply)))) %>% 
+  mutate(buy_b = ifelse(abs(maxSW - vol_supply) < 1, 0, base_mwtp - 2*buy_a*vol_supply)) %>% 
+  mutate(sell_a = (base_mwtp - lb_mwtp)/(2*(vol_supply - lb_supply))) %>% 
+  mutate(sell_b = base_mwtp - 2*sell_a*vol_supply) %>% 
+  mutate(buy_mwtp = 2*buy_a*quantity + buy_b) %>% 
+  mutate(sell_mwtp = 2*sell_a*quantity + sell_b) %>% 
+  mutate(imp_mwtp = ifelse(quantity_share > 1, buy_mwtp, sell_mwtp)) %>% 
+  #mutate(imp_mwtp = ifelse(quantity_share > 0.5, buy_mwtp, sell_mwtp)) %>% 
+  pivot_longer(cols = c("mwtp", "buy_mwtp", "sell_mwtp", "imp_mwtp"), names_to = "type", values_to = "wtp") -> urban_wtp_imputation
+
+urban_wtp_imputation %>% 
+  filter(buy_a > 0) -> ugh
+
+urban_wtp_imputation %>% 
+  select(supplier_name, pws_id, year, totalSW = vol_supply, maxSW, 
+         buy_a, buy_b, sell_a, sell_b, price_coef, dem_intercept, phi, mwtp = base_mwtp) %>% unique -> urban_wtp_data
+
+write_csv(urban_wtp_data, here("data/intermediate/urban_wtp_data.csv"))
+
+on_the_way %>% 
+  ungroup %>% 
+  select(pws_id, year, in_cvp, in_swp, share_gw, share_swp, share_cvp, share_other) %>% 
+  unique -> urban_supply_stats
+
+write_csv(urban_supply_stats, here("data/intermediate/urban_supply_stats.csv"))
+
+
+
+
+
+

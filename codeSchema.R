@@ -22,8 +22,13 @@ source(here("data/code/clean_electricity_data.R"))
 # with the new frmwk, this could be done in R, but it's fine for now
 # get_farmer_cleanest_approximation.m 
 
-# AFTER THIS: move to urban water data cleaning 
-############ - we will end up redoing urban water hopefully with FTR data (not yet)
+#### Create urban utility WTP estimates #### 
+# this part is based on cleaning for pws_income, home details, and rain 
+# for now, I'm just porting over the clean data
+# need to also port over the code that cleans it. 
+source(here("data/code/urban_value_estimation.R")) 
+
+
 ## GOAL FOR TOMORROW 
 # Replicate some version of the final results and re-familiarize with counterfactual pipeline 
 # - save RF Estimation code and dauco_network code for later cuz it sucks ass -

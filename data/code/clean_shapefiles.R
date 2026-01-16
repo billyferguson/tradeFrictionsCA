@@ -2,7 +2,6 @@ library(tidyverse)
 library(here)
 library(sf)
 
-
 # Clean DAUCO and User shapefiles
 # CITE: Hagerty (2024)
 
@@ -65,37 +64,47 @@ gw_basins_raw %>%
 
 saveRDS(gw_agg_basins, here("data/intermediate/shapefiles/gw_agg_basins.rds"))
 
+# clean urban utility shapefiles 
 
-
-pws_shapes <- st_read(here("data/raw_data/shapefiles/California_Drinking_Water_System_Area_Boundaries")) %>% 
-  mutate(pws_id = as.character(parse_number(SABL_PWSID))) %>% mutate(geometry = st_transform(geometry, st_crs(dauco_shapes$geometry)))
+pws_shapes <- st_read(here("raw/shapefiles/California_Drinking_Water_System_Area_Boundaries")) %>% 
+  mutate(pws_id = parse_number(SABL_PWSID)) %>% mutate(geometry = st_transform(geometry, st_crs(dauco_shapes$geometry)))
 user_shapes <- st_read(here("raw/hagerty/shapefiles/users_final.shp"))
+
+
+
+pws_shapes %>% 
+  st_drop_geometry() %>% 
+  select(SABL_PWSID, WATER_SY_1) %>% 
+  group_by(pws_id) %>% 
+  mutate(n()) -> what
 
 pws_shapes %>% 
   group_by(pws_id) %>% 
   summarize(geometry = st_combine(geometry)) %>% 
-  left_join(unique_pws, by = "pws_id") %>% 
-  filter(match == 1) %>% 
+  #left_join(unique_pws, by = "pws_id") %>% 
+  #filter(match == 1) %>% 
   st_make_valid -> clean_pws
 
 user_shapes %>% 
-  select(pws_id = pwsid) %>%  
-  left_join(unique_pws, by = "pws_id") %>% 
-  mutate(match = match*as.numeric(!(pws_id %in% clean_pws$pws_id))) %>% 
+  select(pws_id = pwsid) %>% 
+  mutate(pws_id = as.numeric(pws_id)) %>% 
+  filter(!is.na(pws_id)) %>% 
+  mutate(match = as.numeric(!(pws_id %in% clean_pws$pws_id))) %>% 
   filter(match == 1) -> clean_users
 
 pws_final <- bind_rows(clean_pws, clean_users)
 
-hydro <- st_read(here("data/raw_data/shapefiles/i03_Hydrologic_Regions")) %>% 
-  mutate(geometry = st_transform(geometry, st_crs(pws_final$geometry)))
+saveRDS(pws_final, here("data/intermediate/shapefiles/pws_final.rds"))
 
 pws_final %>% 
-  st_intersection(hydro) %>% 
+  st_intersection(hr_shapes) %>% 
   mutate(area = st_area(geometry)) %>% 
   st_drop_geometry() %>% 
   group_by(pws_id) %>% 
   filter(area == max(area)) %>% 
-  select(pws_id, hr = HR_NAME) -> pws_hr_xw
+  select(pws_id, hr) -> pws_hr_xw
+
+write_csv(pws_hr_xw, here("data/intermediate/xws/pws_hr_xw.csv"))
 
 pws_final %>% 
   mutate(centroid = st_centroid(geometry)) %>% 
@@ -109,5 +118,8 @@ pws_final %>%
   st_join(dauco_shapes) %>% 
   st_drop_geometry %>% 
   select(pws_id, dauco_id) -> pws_dauco_xw
+
+write_csv(pws_dauco_xw, here("data/intermediate/xws/pws_dauco_xw.csv"))
+
 
 
